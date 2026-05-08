@@ -1,4 +1,145 @@
-# [TEN-APP-O-DAY] — Claude operating manual
+# Project: AIKDCL
+
+[Mô tả app cụ thể này làm gì, đối tượng dùng]
+
+Lưu ý:
+App AIKDCL
+1. Đã tạo firebase project 
+Project name: AIKDCL
+Project ID: aikdcl
+Project number: 1056300284274
+2. Đã tạo cơ sở dữ liệu firestore
+3. Đã nâng cấp firebase lên blaze
+4. Đã tạo firestorage
+5. Đã tao security authentication 
+6. Đã tạo app hosting (connect với Githup repo: aikdcl)
+7.
+8.
+------
+AI-KĐCL — Quản lý Minh chứng & Tự động hóa Báo cáo Đánh giá Kiểm định
+(Đề xuất tên thay thế: AI-SAR, AI-EVISAR, AI-Kiểm định 360)
+1. Một dòng giới thiệu
+Ứng dụng web AI hỗ trợ trường đại học quản lý tập trung kho minh chứng kiểm định và tự động sinh báo cáo tự đánh giá (SAR) theo nhiều bộ tiêu chuẩn (AUN-QA, MOET, ABET, FIBAA, CDIO…), rút ngắn quy trình kiểm định chất lượng từ vài tháng xuống vài ngày, đảm bảo tính nhất quán và truy xuất ngược minh chứng.
+2. Bài toán cần giải quyết
+Tại các trung tâm Đảm bảo Chất lượng (ĐBCL) và phòng Đào tạo của trường đại học hiện nay:
+
+Minh chứng kiểm định nằm rải rác trên Google Drive, email, SharePoint, ổ cứng cá nhân, file giấy. Mỗi kỳ kiểm định phải huy động nhân sự đi gom lại từ đầu, tốn 2–3 tháng.
+Viết Báo cáo Tự đánh giá (SAR) cần huy động hàng chục cán bộ, giảng viên cùng lúc, chất lượng không đồng đều, văn phong rời rạc.
+Một minh chứng có thể phục vụ nhiều tiêu chí, nhưng không có công cụ tra cứu ngược (criterion → evidence) lẫn xuôi (evidence → criterion).
+Khó phát hiện tiêu chí thiếu minh chứng cho đến phút cuối, gây sửa chữa gấp.
+Sau kiểm định, kế hoạch cải tiến liên tục (CI – Continuous Improvement) không được giám sát hệ thống.
+Trước khi nộp cho đoàn đánh giá ngoài, nhà trường không có công cụ tự "phản biện ngược" SAR của chính mình.
+
+3. Đối tượng người dùng
+
+Người dùng chính: cán bộ Trung tâm ĐBCL, cán bộ Phòng Đào tạo, Phòng Khảo thí.
+Người dùng phụ: Trưởng khoa/bộ môn, giảng viên đầu mối, Ban Giám hiệu (chế độ xem dashboard).
+Vai trò quản trị: Quản trị viên hệ thống của trường.
+
+Mọi thao tác đều phải thân thiện với người dùng không chuyên IT.
+4. Các năng lực cốt lõi
+Module 1 — Kho Minh chứng Thông minh
+
+Upload đa định dạng (PDF, DOCX, XLSX, PPT, ảnh, video) hoặc kết nối nguồn dữ liệu sẵn có (Google Drive, OneDrive, email, hệ thống UniDrive nội bộ).
+AI tự động đọc, trích xuất metadata (tiêu đề, ngày ban hành, đơn vị, mã văn bản, tóm tắt nội dung).
+AI tự gắn tag tiêu chí kiểm định mà tài liệu có thể phục vụ (multi-label).
+Tìm kiếm ngữ nghĩa: ví dụ truy vấn "minh chứng khảo sát ý kiến doanh nghiệp 2023" trả về danh sách tài liệu kèm trích đoạn cụ thể trong file.
+Quản lý vòng đời tài liệu: hiệu lực, hết hạn, version, cảnh báo cần cập nhật.
+Phát hiện trùng lặp, gợi ý gộp.
+
+Module 2 — Thư viện Bộ tiêu chuẩn (cấu hình được)
+
+Có sẵn các bộ chuẩn phổ biến: AUN-QA (cấp chương trình & cấp cơ sở), MOET (Thông tư 04, 12, 38), ABET, FIBAA, CDIO, các bộ chuẩn chuyên ngành.
+Cho phép nhà trường tự định nghĩa bộ tiêu chí riêng (custom rubric).
+Mỗi tiêu chí có: mã, tên, mô tả, gợi ý loại minh chứng cần có, mức điểm mong muốn.
+
+Module 3 — Đối chiếu Minh chứng ↔ Tiêu chí
+
+Sinh ma trận trực quan: hàng = tiêu chí, cột = minh chứng (hoặc ngược lại).
+AI tự cảnh báo: tiêu chí thiếu minh chứng, minh chứng yếu, minh chứng quá cũ.
+Cho phép cán bộ duyệt thủ công gợi ý của AI (chấp nhận / điều chỉnh / từ chối).
+Đề xuất minh chứng bổ sung nên thu thập.
+
+Module 4 — Tự động sinh Báo cáo Tự đánh giá (SAR)
+
+Người dùng chọn: bộ tiêu chuẩn → chương trình/đơn vị cần đánh giá → kỳ kiểm định.
+AI sinh draft SAR đầy đủ. Với từng tiêu chí, AI viết:
+
+Phần mô tả hiện trạng,
+Phần đối chiếu minh chứng (kèm trích dẫn tên file & vị trí),
+Điểm mạnh, điểm cần cải tiến,
+Mức điểm tự đánh giá đề xuất.
+
+
+Ngôn ngữ học thuật chuẩn, văn phong nhất quán xuyên suốt.
+Hỗ trợ song ngữ Việt – Anh.
+Cán bộ ĐBCL biên tập trực tiếp trong app, có thể yêu cầu AI: "viết lại đoạn này", "ngắn gọn hơn", "nghiêm khắc hơn", "thân thiện hơn", "thêm số liệu cụ thể".
+
+Module 5 — Phản biện ngược (Critic Mode)
+
+AI đóng vai đoàn đánh giá ngoài đọc lại SAR đã viết.
+Phát hiện: thiếu logic, thiếu minh chứng cho khẳng định, ngôn ngữ chưa đạt, mâu thuẫn nội tại, số liệu không khớp.
+Sinh danh sách câu hỏi mà đoàn đánh giá ngoài có thể đặt trong buổi phỏng vấn.
+Sinh checklist các điểm cần củng cố trước khi nộp.
+
+Module 6 — Quản lý Kế hoạch Cải tiến (CI)
+
+Từ kết quả SAR và phản biện ngược, AI gợi ý danh sách action item cải tiến.
+Giao việc cho đơn vị / cá nhân, theo dõi tiến độ, nhắc hạn.
+Dashboard KPI cải tiến liên tục theo thời gian thực.
+Lưu lịch sử để phục vụ kỳ kiểm định kế tiếp.
+
+Module 7 — Xuất & Tích hợp
+
+Xuất SAR ra DOCX/PDF đúng template chính thức của từng tổ chức kiểm định.
+Xuất gói minh chứng (file ZIP có cây thư mục được tổ chức theo tiêu chí, kèm index PDF).
+API để tích hợp với LMS (Moodle), ERP, Power BI và các ứng dụng UAE18 khác (DCHP, DGDCHP2, AI-ĐGGT…).
+
+5. Đầu vào / Đầu ra
+Đầu vào: tài liệu minh chứng đa định dạng, thông tin chương trình đào tạo / đơn vị, bộ tiêu chuẩn áp dụng, các báo cáo có sẵn của trường.
+Đầu ra: Báo cáo SAR hoàn chỉnh (DOCX/PDF), gói minh chứng có index, kế hoạch cải tiến, dashboard kiểm định.
+6. Yêu cầu phi chức năng
+
+Bảo mật cao: dữ liệu kiểm định và minh chứng là dữ liệu nhạy cảm. Cần phân quyền chi tiết theo vai trò, audit log mọi thao tác đọc/sửa/xóa, mã hóa dữ liệu khi lưu và khi truyền.
+Hiệu năng: kho minh chứng có thể đến hàng chục nghìn file. Tìm kiếm ngữ nghĩa phải dưới 2 giây.
+Cộng tác đa người dùng: nhiều cán bộ có thể cùng biên tập SAR đồng thời (collaborative editing), có lịch sử thay đổi và rollback.
+Tuân thủ pháp lý: lưu trữ tại Việt Nam/khu vực Đông Nam Á, tuân thủ Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân.
+Triển khai linh hoạt: ưu tiên cloud-first, nhưng phải có phương án triển khai on-premise/private AI cho trường có yêu cầu bảo mật cao.
+Khả năng đổi AI engine: kiến trúc tách lớp adapter để có thể chuyển đổi giữa Claude, GPT, Gemini, hoặc model open-source local (Llama, DeepSeek, Qwen) chạy nội bộ — đáp ứng tiêu chí "Private AI" mà K9 đã hứa với khách hàng.
+
+7. Ngoài phạm vi (out of scope) — phiên bản 1
+
+Không phải hệ thống quản lý chất lượng toàn diện (BSC, ISO 9001, EFQM).
+Không thay thế Moodle / LMS hay HRM.
+Không chấm bài sinh viên (đã có LMS-AI9 đảm nhiệm).
+Không xây dựng đề cương học phần (đã có DCHP / DGDCHP2 đảm nhiệm) — chỉ tiêu thụ kết quả qua API.
+Không phải công cụ thiết kế chương trình đào tạo (sẽ là AI-CTĐT ở giai đoạn sau).
+
+8. Tích hợp với hệ sinh thái UAE18 sẵn có
+
+Lấy dữ liệu đề cương từ DCHP / DGDCHP2 → làm minh chứng cho tiêu chí về CTĐT.
+Lấy dữ liệu đánh giá giáo trình từ AI-ĐGGT → minh chứng tiêu chí học liệu.
+Lấy dữ liệu đề tài NCKH và bài báo Scopus → minh chứng tiêu chí NCKH.
+Lấy dữ liệu dashboard từ LMS-AI9 (early warning, dashboard tổng) → minh chứng tiêu chí kết quả học tập.
+Lưu trữ minh chứng song song với UniDrive (khi có).
+
+9. Phần để Claude Code tự quyết
+Mô tả này cố tình chừa các quyết định kỹ thuật chi tiết cho khâu triển khai. Cụ thể:
+
+Lựa chọn stack frontend (React / Next / Vue), backend (Node / Python / Go), database (Postgres / Firestore / MongoDB), vector store (pgvector / Pinecone / Weaviate / Qdrant).
+Schema cụ thể của database, cấu trúc collection/table, index.
+Prompt engineering cho từng module AI (đặc biệt module 4 viết SAR và module 5 critic).
+Chiến lược chunking, embedding model, RAG pipeline cho tài liệu minh chứng dài.
+Thiết kế UI/UX cụ thể — chỉ cần đảm bảo nguyên tắc: rõ ràng, ít click, dễ dùng cho cán bộ không chuyên IT.
+Cơ chế caching gọi LLM để tối ưu chi phí.
+Hạ tầng triển khai cụ thể (Cloud Run, Vercel, AWS, hay tự host).
+Chiến lược authentication (Google SSO, Azure AD của trường, hay riêng).
+Cấu trúc repo, CI/CD, monitoring, logging.
+Bộ test, dữ liệu mẫu để demo.
+
+
+Mục tiêu MVP (gợi ý): chạy được end-to-end Module 1 + Module 2 + Module 3 + Module 4 cho 1 bộ tiêu chuẩn (AUN-QA cấp chương trình) với kho minh chứng quy mô ~1000 file. Module 5, 6, 7 ở phiên bản kế tiếp.
+---
 
 > File này là tham chiếu mặc định cho mọi phiên Claude làm việc trên repo. Đọc
 > hết trước khi viết dòng code đầu tiên. Nếu nội dung mâu thuẫn với prompt
