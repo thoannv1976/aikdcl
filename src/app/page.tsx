@@ -1,28 +1,16 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
-import { adminDb } from '@/lib/firebase-admin';
-import { COL } from '@/lib/constants';
+import { listProgramsByOwner } from '@/lib/repo';
 import { getStandardOrNull } from '@/lib/standards';
-import type { ProgramDoc } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
-
-async function listPrograms(ownerId: string): Promise<ProgramDoc[]> {
-  const snap = await adminDb()
-    .collection(COL.programs)
-    .where('ownerId', '==', ownerId)
-    .orderBy('createdAt', 'desc')
-    .limit(50)
-    .get();
-  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as ProgramDoc) }));
-}
 
 export default async function HomePage() {
   const user = await getCurrentUser();
   if (!user) redirect('/login');
 
-  const programs = await listPrograms(user.uid).catch(() => []);
+  const programs = await listProgramsByOwner(user.uid).catch(() => []);
 
   return (
     <div className="space-y-6">

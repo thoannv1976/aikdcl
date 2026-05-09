@@ -1,4 +1,5 @@
 import 'server-only';
+import type { DocumentSnapshot } from 'firebase-admin/firestore';
 import { adminDb, FieldValue } from './firebase-admin';
 import { COL, EVIDENCE_STATUS, type EvidenceStatus } from './constants';
 import type { EvidenceDoc, ProgramDoc } from './types';
@@ -8,6 +9,38 @@ import type { EvidenceDoc, ProgramDoc } from './types';
 // Mọi ghi đi qua Admin SDK (rules được bypass + atomic). Client SDK chỉ
 // dùng cho Auth (xem firebase.ts).
 // =============================================================================
+
+/**
+ * Convert Firestore document → plain JSON-serializable object.
+ *
+ * Cần thiết vì Server Components Next.js 14 truyền data sang Client Components
+ * qua JSON.stringify — class instance như Firestore Timestamp / DocumentReference
+ * sẽ throw "Only plain objects ... can be passed to Client Components".
+ *
+ * Đồng thời strip `_serverTime` (Timestamp metadata không cần phía client).
+ */
+function sanitize(input: unknown): unknown {
+  if (input === null || input === undefined) return input;
+  if (Array.isArray(input)) return input.map(sanitize);
+  if (typeof input !== 'object') return input;
+
+  const maybeTs = input as { toDate?: () => Date };
+  if (typeof maybeTs.toDate === 'function') {
+    return maybeTs.toDate().toISOString();
+  }
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(input as Record<string, unknown>)) {
+    if (k === '_serverTime') continue;
+    out[k] = sanitize(v);
+  }
+  return out;
+}
+
+function toPlain<T>(snap: DocumentSnapshot): (T & { id: string }) | null {
+  const data = snap.data();
+  if (!data) return null;
+  return { id: snap.id, ...(sanitize(data) as object) } as T & { id: string };
+}
 
 export async function createProgram(
   ownerId: string,
@@ -29,8 +62,7 @@ export async function createProgram(
 
 export async function getProgram(id: string): Promise<ProgramDoc | null> {
   const snap = await adminDb().collection(COL.programs).doc(id).get();
-  if (!snap.exists) return null;
-  return { id: snap.id, ...(snap.data() as ProgramDoc) };
+  return toPlain<ProgramDoc>(snap);
 }
 
 export async function listProgramsByOwner(
@@ -42,7 +74,9 @@ export async function listProgramsByOwner(
     .orderBy('createdAt', 'desc')
     .limit(100)
     .get();
-  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as ProgramDoc) }));
+  return snap.docs
+    .map((d) => toPlain<ProgramDoc>(d))
+    .filter((x): x is ProgramDoc & { id: string } => x !== null);
 }
 
 export async function deleteProgram(id: string): Promise<void> {
@@ -113,8 +147,7 @@ export async function updateEvidence(
 
 export async function getEvidence(id: string): Promise<EvidenceDoc | null> {
   const snap = await adminDb().collection(COL.evidences).doc(id).get();
-  if (!snap.exists) return null;
-  return { id: snap.id, ...(snap.data() as EvidenceDoc) };
+  return toPlain<EvidenceDoc>(snap);
 }
 
 export async function listEvidenceByProgram(
@@ -126,18 +159,21 @@ export async function listEvidenceByProgram(
     .orderBy('createdAt', 'desc')
     .limit(500)
     .get();
-  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as EvidenceDoc) }));
+  return snap.docs
+    .map((d) => toPlain<EvidenceDoc>(d))
+    .filter((x): x is EvidenceDoc & { id: string } => x !== null);
 }
 
 export async function deleteEvidence(id: string): Promise<void> {
   const db = adminDb();
   const ev = await db.collection(COL.evidences).doc(id).get();
   if (!ev.exists) return;
-  const programId = (ev.data() as EvidenceDoc).programId;
+  const data = ev.data() as EvidenceDoc | undefined;
+  if (!data) return;
   await ev.ref.delete();
   await db
     .collection(COL.programs)
-    .doc(programId)
+    .doc(data.programId)
     .update({
       evidenceCount: FieldValue.increment(-1),
       updatedAt: new Date().toISOString(),
