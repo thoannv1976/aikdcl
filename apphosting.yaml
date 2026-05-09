@@ -36,7 +36,7 @@ env:
     availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-    value: 'aikdcl.appspot.com'
+    value: 'aikdcl.firebasestorage.app'
     availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_APP_NAME
