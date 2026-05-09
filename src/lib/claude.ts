@@ -128,17 +128,26 @@ async function assertWithinRateLimit(userId: string): Promise<void> {
   const hourAgo = new Date(now - 60 * 60 * 1000).toISOString();
   const dayAgo = new Date(now - 24 * 60 * 60 * 1000).toISOString();
 
-  // Một query trả 24h, đếm theo giờ ở client để đỡ index riêng.
+  // Fetch N log gần nhất cho user (DESC). Filter trong memory cho 24h và 1h —
+  // tránh range filter `where(createdAt >=)` vì Firestore yêu cầu index khác
+  // direction của __name__ so với index `(userId ASC, createdAt DESC)` đã deploy.
+  // N = RATE_LIMIT_PER_DAY * 4 đủ rộng cho mọi tình huống thực tế.
+  const FETCH_LIMIT = Math.max(RATE_LIMIT_PER_DAY * 4, 100);
   const snap = await db
     .collection(COL.usageLogs)
     .where('userId', '==', userId)
-    .where('createdAt', '>=', dayAgo)
+    .orderBy('createdAt', 'desc')
+    .limit(FETCH_LIMIT)
     .get();
 
-  const dayCount = snap.size;
-  const hourCount = snap.docs.filter(
-    (d) => (d.data().createdAt as string) >= hourAgo,
-  ).length;
+  let dayCount = 0;
+  let hourCount = 0;
+  for (const d of snap.docs) {
+    const ts = d.data().createdAt as string | undefined;
+    if (!ts) continue;
+    if (ts >= dayAgo) dayCount++;
+    if (ts >= hourAgo) hourCount++;
+  }
 
   if (hourCount >= RATE_LIMIT_PER_HOUR) {
     const e = new Error(
