@@ -1,6 +1,6 @@
-# Firebase App Hosting runtime config cho [TEN-APP-O-DAY]
-# Project Firebase: [TEN-PROJECT-FIREBASE]  Region: asia-southeast1
-# Backend ID:       [ten-backend]
+# Firebase App Hosting runtime config cho aikdcl
+# Project Firebase: aikdcl  Region: asia-southeast1
+# Backend ID:       aikdcl
 #
 # Quy tắc UAE18:
 #   - Mọi credential dùng `secret:` (Google Secret Manager).
@@ -24,23 +24,23 @@ env:
     availability: [BUILD, RUNTIME]
 
   - variable: FIREBASE_PROJECT_ID
-    value: '[TEN-PROJECT-FIREBASE]'
+    value: 'aikdcl'
     availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    value: '[TEN-PROJECT-FIREBASE]'
+    value: 'aikdcl'
     availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    value: '[TEN-PROJECT-FIREBASE].firebaseapp.com'
+    value: 'aikdcl.firebaseapp.com'
     availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-    value: '[TEN-PROJECT-FIREBASE].appspot.com'
+    value: 'aikdcl.appspot.com'
     availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_APP_NAME
-    value: '[TEN-APP-O-DAY]'
+    value: 'AIKDCL'
     availability: [BUILD, RUNTIME]
 
   # ---------- secrets ----------

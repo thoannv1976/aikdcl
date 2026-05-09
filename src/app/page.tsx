@@ -1,35 +1,99 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
-import { APP_NAME } from '@/lib/constants';
+import { adminDb } from '@/lib/firebase-admin';
+import { COL } from '@/lib/constants';
+import { getStandardOrNull } from '@/lib/standards';
+import type { ProgramDoc } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
+
+async function listPrograms(ownerId: string): Promise<ProgramDoc[]> {
+  const snap = await adminDb()
+    .collection(COL.programs)
+    .where('ownerId', '==', ownerId)
+    .orderBy('createdAt', 'desc')
+    .limit(50)
+    .get();
+  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as ProgramDoc) }));
+}
 
 export default async function HomePage() {
   const user = await getCurrentUser();
   if (!user) redirect('/login');
 
+  const programs = await listPrograms(user.uid).catch(() => []);
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Chào {user.name ?? user.email}</h1>
-        <p className="text-sm text-slate-500">
-          Đây là trang chủ skeleton của <strong>{APP_NAME}</strong>. Khi build
-          feature đầu tiên, thay nội dung dưới bằng dashboard / danh sách
-          domain object.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">
+            Chào {user.name ?? user.email}
+          </h1>
+          <p className="text-sm text-slate-500 mt-1 max-w-2xl">
+            Quản lý kho minh chứng kiểm định và chuẩn bị báo cáo tự đánh giá
+            (SAR) cho các chương trình đào tạo theo bộ tiêu chuẩn AUN-QA, MOET,
+            v.v.
+          </p>
+        </div>
+        <div className="flex gap-2 flex-shrink-0">
+          <Link href="/standards" className="btn-secondary">
+            Bộ tiêu chuẩn
+          </Link>
+          <Link href="/programs/new" className="btn-primary">
+            + Chương trình mới
+          </Link>
+        </div>
       </div>
 
-      <div className="card text-slate-600 text-sm space-y-2">
-        <p>
-          <strong>Bước tiếp theo:</strong> đọc{' '}
-          <code className="px-1 bg-slate-100 rounded">CLAUDE.md</code> trước
-          khi yêu cầu Claude scaffold feature, đảm bảo đúng pattern UAE18.
-        </p>
-        <p>
-          Reference: xem các app mẫu trong{' '}
-          <code className="px-1 bg-slate-100 rounded">_reference/README.md</code>.
-        </p>
-      </div>
+      <section>
+        <h2 className="text-sm font-semibold text-slate-700 mb-3">
+          Chương trình đào tạo của bạn ({programs.length})
+        </h2>
+
+        {programs.length === 0 ? (
+          <div className="card text-center text-slate-500 py-10">
+            <p className="mb-3">
+              Bạn chưa có chương trình nào. Tạo chương trình đầu tiên để bắt
+              đầu thu thập minh chứng.
+            </p>
+            <Link href="/programs/new" className="btn-primary">
+              Tạo chương trình đầu tiên
+            </Link>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-3">
+            {programs.map((p) => {
+              const std = getStandardOrNull(p.standardId);
+              return (
+                <Link
+                  key={p.id}
+                  href={`/programs/${p.id}`}
+                  className="card hover:shadow-md transition"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    {std && (
+                      <span className="badge bg-brand-100 text-brand-700">
+                        {std.shortName}
+                      </span>
+                    )}
+                    <span className="text-xs text-slate-400">
+                      {p.evidenceCount ?? 0} minh chứng
+                    </span>
+                  </div>
+                  <h3 className="font-semibold text-slate-900">{p.name}</h3>
+                  <div className="text-xs text-slate-500 mt-1 space-x-2">
+                    {p.code && <span>Mã: {p.code}</span>}
+                    {p.faculty && <span>• {p.faculty}</span>}
+                    {p.cohort && <span>• {p.cohort}</span>}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

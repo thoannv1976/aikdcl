@@ -4,7 +4,7 @@
 // =============================================================================
 
 export const APP_NAME =
-  process.env.NEXT_PUBLIC_APP_NAME || '[TEN-APP-O-DAY]';
+  process.env.NEXT_PUBLIC_APP_NAME || 'AIKDCL';
 
 // ----- Claude / Anthropic -----
 export const CLAUDE_MODEL =
@@ -54,8 +54,25 @@ export const SESSION_COOKIE_MAX_AGE_MS =
   SESSION_COOKIE_MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
 
 // ----- Firestore collections -----
-// Đổi tên app-specific khi cần (vd: 'textbooks', 'meetings'); usage_logs
-// luôn giữ nguyên để cross-app queries dễ.
 export const COL = {
   usageLogs: 'usage_logs',
+  programs: 'programs',
+  evidences: 'evidences',
 } as const;
+
+// ----- Standards -----
+// IDs của bộ tiêu chuẩn được seed sẵn trong src/lib/standards.ts.
+export const STANDARD_IDS = {
+  aunQaV4: 'aun-qa-v4',
+  moetTt04: 'moet-tt04',
+} as const;
+export type StandardId = (typeof STANDARD_IDS)[keyof typeof STANDARD_IDS];
+
+// ----- Evidence status -----
+export const EVIDENCE_STATUS = {
+  pending: 'pending', // mới upload, chờ AI tag
+  tagged: 'tagged', // đã có tag AI gợi ý
+  approved: 'approved', // user duyệt tag
+} as const;
+export type EvidenceStatus =
+  (typeof EVIDENCE_STATUS)[keyof typeof EVIDENCE_STATUS];

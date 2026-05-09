@@ -36,3 +36,103 @@ export interface UsageLogDoc extends OwnedDoc {
 export type ApiResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string; code?: string; status?: number };
+
+// =============================================================================
+// AIKDCL — domain models
+// =============================================================================
+
+import type { EvidenceStatus, StandardId } from './constants';
+
+export interface ProgramDoc extends OwnedDoc {
+  name: string;
+  code?: string;
+  level?: 'undergraduate' | 'graduate' | 'doctoral';
+  faculty?: string;
+  standardId: StandardId;
+  cohort?: string; // vd: "khóa 2020-2024"
+  description?: string;
+  evidenceCount?: number;
+}
+
+export interface EvidenceMetadata {
+  title?: string;
+  issuedAt?: string; // ISO date "yyyy-mm-dd"
+  unit?: string; // đơn vị ban hành
+  docCode?: string; // mã văn bản
+  summary?: string;
+  language?: 'vi' | 'en' | 'other';
+}
+
+export interface EvidenceDoc extends OwnedDoc {
+  programId: string;
+  fileName: string;
+  storagePath: string; // gs path
+  contentType: string;
+  size: number;
+  contentText?: string; // text extracted, max ~50k chars stored
+  metadata: EvidenceMetadata;
+  /** Tag AI gợi ý (criterionId) — user duyệt qua approvedCriteria. */
+  suggestedCriteria: string[];
+  /** Tiêu chí user xác nhận — chỉ những tag này tính vào ma trận. */
+  approvedCriteria: string[];
+  status: EvidenceStatus;
+  errorMessage?: string;
+}
+
+// =============================================================================
+// Standards (Module 2)
+// =============================================================================
+
+export interface CriterionDef {
+  id: string; // unique trong standard, vd "1.1", "C1.1"
+  text: string;
+  description?: string;
+  /** Loại minh chứng đề xuất nên thu thập. Hint cho AI lúc tag. */
+  evidenceHints?: string[];
+}
+
+export interface StandardSection {
+  id: string; // vd "1", "C1"
+  name: string;
+  description?: string;
+  criteria: CriterionDef[];
+}
+
+export interface StandardDef {
+  id: StandardId;
+  name: string;
+  shortName: string;
+  version: string;
+  description: string;
+  /** Thang điểm tự đánh giá; AUN-QA = 1-7, MOET = 1-7. */
+  scoreScale: { min: number; max: number; labels?: Record<number, string> };
+  sections: StandardSection[];
+}
+
+// =============================================================================
+// Matrix (Module 3)
+// =============================================================================
+
+export interface MatrixCell {
+  criterionId: string;
+  evidenceIds: string[];
+}
+
+export interface MatrixRow {
+  sectionId: string;
+  sectionName: string;
+  criteria: {
+    criterionId: string;
+    criterionText: string;
+    evidenceIds: string[];
+  }[];
+}
+
+export interface MatrixData {
+  programId: string;
+  standardId: StandardId;
+  rows: MatrixRow[];
+  totalCriteria: number;
+  coveredCriteria: number;
+  missingCriteria: string[]; // ids chưa có evidence
+}

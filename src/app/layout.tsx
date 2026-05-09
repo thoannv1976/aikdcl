@@ -8,7 +8,8 @@ import UserBadge from '@/components/UserBadge';
 
 export const metadata: Metadata = {
   title: APP_NAME,
-  description: '[Mô tả app]',
+  description:
+    'AIKDCL — Quản lý minh chứng kiểm định và tự động sinh báo cáo tự đánh giá theo các bộ tiêu chuẩn AUN-QA, MOET, ABET, FIBAA, CDIO.',
 };
 
 export default async function RootLayout({
