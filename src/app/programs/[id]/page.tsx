@@ -66,12 +66,18 @@ export default async function ProgramDetailPage({
               </p>
             )}
           </div>
-          <div className="flex gap-2 flex-shrink-0">
+          <div className="flex gap-2 flex-shrink-0 flex-wrap justify-end">
             <Link
               href={`/programs/${params.id}/matrix`}
               className="btn-secondary"
             >
               Ma trận đối chiếu
+            </Link>
+            <Link
+              href={`/programs/${params.id}/sar`}
+              className="btn-primary"
+            >
+              Báo cáo SAR
             </Link>
             <DeleteProgramButton programId={params.id} />
           </div>

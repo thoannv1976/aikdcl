@@ -58,6 +58,7 @@ export const COL = {
   usageLogs: 'usage_logs',
   programs: 'programs',
   evidences: 'evidences',
+  sarReports: 'sar_reports',
 } as const;
 
 // ----- Standards -----

@@ -136,3 +136,48 @@ export interface MatrixData {
   coveredCriteria: number;
   missingCriteria: string[]; // ids chưa có evidence
 }
+
+// =============================================================================
+// SAR — Self-Assessment Report (Module 4)
+// =============================================================================
+
+export interface SarEvidenceRef {
+  evidenceId: string;
+  fileName: string;
+  docCode?: string;
+  /** Trích đoạn / lý do đối chiếu (do AI tóm tắt). */
+  quote?: string;
+}
+
+export interface SarSectionDraft {
+  sectionId: string; // mã tiêu chuẩn (vd "1", "TC3")
+  sectionName: string;
+  criterionId: string;
+  criterionText: string;
+  /** Mô tả hiện trạng — 4-8 câu, văn phong học thuật. */
+  description: string;
+  /** Đối chiếu các minh chứng đã duyệt cho tiêu chí này. */
+  evidenceRefs: SarEvidenceRef[];
+  strengths: string[];
+  weaknesses: string[];
+  /** Mức tự đánh giá theo thang điểm của bộ chuẩn (1-7 cho AUN-QA + MOET). */
+  selfScore: number;
+  selfScoreRationale: string;
+  /** True nếu tiêu chí KHÔNG có minh chứng — AI sẽ note "thiếu minh chứng". */
+  hasNoEvidence: boolean;
+}
+
+export interface SarReportDoc extends OwnedDoc {
+  programId: string;
+  programName: string;
+  standardId: StandardId;
+  sections: SarSectionDraft[];
+  overallScore: number;
+  /** % tiêu chí có ít nhất 1 minh chứng. */
+  coveragePct: number;
+  status: 'ready' | 'error';
+  errorMessage?: string;
+  model?: string;
+  /** Thời gian tổng tính bằng ms để tham khảo. */
+  generationTimeMs?: number;
+}

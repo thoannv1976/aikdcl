@@ -43,6 +43,17 @@ env:
     value: 'AIKDCL'
     availability: [BUILD, RUNTIME]
 
+  # Tăng rate limit để chạy được Module 4 (Sinh SAR ~30-50 Claude call / lần).
+  # Nếu mở cho nhiều user external, hã cân nhắc giảm hoặc tách rate limit
+  # cho route SAR (per-user-per-program) thay vì global per-user.
+  - variable: RATE_LIMIT_PER_HOUR
+    value: '100'
+    availability: [BUILD, RUNTIME]
+
+  - variable: RATE_LIMIT_PER_DAY
+    value: '500'
+    availability: [BUILD, RUNTIME]
+
   # ---------- secrets ----------
   # Tạo:
   #   firebase apphosting:secrets:set ANTHROPIC_API_KEY
