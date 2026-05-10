@@ -2,7 +2,7 @@ import 'server-only';
 import type { DocumentSnapshot } from 'firebase-admin/firestore';
 import { adminDb, FieldValue } from './firebase-admin';
 import { COL, EVIDENCE_STATUS, type EvidenceStatus } from './constants';
-import type { EvidenceDoc, ProgramDoc } from './types';
+import type { EvidenceDoc, ProgramDoc, SarReportDoc } from './types';
 
 // =============================================================================
 // AIKDCL — Firestore repository helpers (server-only).
@@ -183,4 +183,42 @@ export async function deleteEvidence(id: string): Promise<void> {
 
 export function isEvidenceStatus(s: string): s is EvidenceStatus {
   return Object.values(EVIDENCE_STATUS).includes(s as EvidenceStatus);
+}
+
+// =============================================================================
+// SAR reports
+// =============================================================================
+
+export async function saveSarReport(
+  ownerId: string,
+  data: Omit<SarReportDoc, 'id' | 'ownerId' | 'createdAt' | 'updatedAt'>,
+): Promise<string> {
+  const now = new Date().toISOString();
+  const ref = await adminDb()
+    .collection(COL.sarReports)
+    .add({
+      ...data,
+      ownerId,
+      createdAt: now,
+      updatedAt: now,
+    });
+  return ref.id;
+}
+
+export async function getLatestSarReport(
+  programId: string,
+): Promise<SarReportDoc | null> {
+  const snap = await adminDb()
+    .collection(COL.sarReports)
+    .where('programId', '==', programId)
+    .orderBy('createdAt', 'desc')
+    .limit(1)
+    .get();
+  if (snap.empty) return null;
+  return toPlain<SarReportDoc>(snap.docs[0]);
+}
+
+export async function getSarReport(id: string): Promise<SarReportDoc | null> {
+  const snap = await adminDb().collection(COL.sarReports).doc(id).get();
+  return toPlain<SarReportDoc>(snap);
 }
